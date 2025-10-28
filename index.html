@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LUMA VPN — Геймерский VPN (финальный превью)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1:#2b1157; --bg2:#1b0d3a; --fg:#fff; --mut:#d7ccff;
+    --accent:#a855f7; --accent2:#ec4899; --blackish:#0b0b12;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  .display{font-family:"Anton",system-ui,sans-serif; letter-spacing:.5px}
+  a,button{cursor:pointer}
+  .container{max-width:1120px;margin:0 auto;padding:0 16px}
+  header{position:sticky;top:0;z-index:30;backdrop-filter:blur(6px);background:rgba(0,0,0,.35)}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+  .nav a{color:#eee;text-decoration:none;margin-left:18px;opacity:.9}
+  .nav a:hover{opacity:1}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
+  .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#d946ef,#8b5cf6);display:grid;place-items:center;font-weight:700;box-shadow:0 0 18px rgba(216,70,239,.35)}
+  .btn{background:#fff;color:#6b21a8;border:0;border-radius:12px;padding:10px 16px;font-weight:700;transition:transform .15s ease, filter .2s ease, box-shadow .2s ease}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 0 18px rgba(168,85,247,.35)}
+  .btn.primary:hover{filter:brightness(1.06);box-shadow:0 0 24px rgba(236,72,153,.45)}
+  .btn:hover{transform:translateY(-1px)}
+  .hero{position:relative;overflow:hidden}
+  .hero .planet{position:absolute;inset:0;opacity:.45;pointer-events:none;
+                -webkit-mask-image:linear-gradient(to right, transparent 0%, transparent 48%, black 60%);
+                mask-image:linear-gradient(to right, transparent 0%, transparent 48%, black 60%);}
+  .hero-inner{display:grid;gap:40px;align-items:center;padding:64px 0}
+  @media(min-width:900px){.hero-inner{grid-template-columns:1fr 1fr}}
+  .pill{display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:999px;padding:6px 12px;font-size:14px}
+  h1{font-size:56px;line-height:1.05;margin:12px 0 0}
+  h2{font-size:36px;margin:0 0 16px}
+  .muted{color:var(--mut)}
+  .divider{display:none} /* убрали чёрную полосу */
+  .cards{display:grid;gap:16px}
+  @media(min-width:900px){.cards{grid-template-columns:repeat(3,1fr)}}
+  .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:20px}
+  .black{background:rgba(0,0,0,.55)}
+  ul.clean{padding-left:18px;margin:10px 0}
+  .price{font-size:40px;font-weight:900;margin:10px 0}
+  .select-plan{width:100%}
+  .link{color:#fff;opacity:.9;text-decoration:none}
+  .link:hover{opacity:1;text-decoration:underline}
+  .howto li{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px;margin:12px 0}
+  footer{border-top:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.35);padding:24px 0;margin-top:40px}
+
+  /* Trust badges */
+  .trust{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:800px){.trust{grid-template-columns:repeat(4,1fr)}}
+  .trust .tb{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px 12px}
+  .tb .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 12px rgba(168,85,247,.65)}
+
+  /* Секция СКАЧАТЬ */
+  .form-grid{display:grid;gap:14px}
+  .field{display:flex;border:1px solid rgba(255,255,255,.25);border-radius:12px;overflow:hidden}
+  .field span{padding:0 10px;background:rgba(255,255,255,.12);display:grid;place-items:center;color:#eee}
+  .field input{all:unset;padding:12px;color:#fff;flex:1}
+  .xs{font-size:12px;color:#cbd5e1;margin-top:6px}
+  /* Опросник */
+  .choices{display:flex;gap:10px;flex-wrap:wrap}
+  .choice{position:relative}
+  .choice input{position:absolute;opacity:0;pointer-events:none}
+  .choice label{display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.25);
+                background:rgba(255,255,255,.08);color:#fff;padding:10px 14px;border-radius:12px}
+  .choice input:checked + label{border-color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 18px rgba(168,85,247,.35)}
+
+  /* Модалка */
+  .modal{position:fixed;inset:0;background:rgba(8,8,12,.7);display:none;place-items:center;padding:16px;z-index:50}
+  .modal.open{display:grid;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .sheet{max-width:560px;width:100%;background:#0f0f16;color:#f7f7fb;border-radius:18px;padding:20px;border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .coupon{font-size:48px;font-weight:900;letter-spacing:2px;color:#fff;text-shadow:
+            0 0 6px rgba(168,85,247,.9),
+            0 0 14px rgba(236,72,153,.8),
+            0 0 28px rgba(168,85,247,.6);}
+  .coupon-wrap{display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:22px;margin-top:12px;
+               animation:popIn .35s cubic-bezier(.2,.8,.2,1) both, pulseGlow 2.2s ease-in-out infinite}
+  @keyframes popIn{from{transform:scale(.86);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes pulseGlow{
+    0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.0), 0 0 18px 8px rgba(236,72,153,.05)}
+    50%{box-shadow:0 0 0 8px rgba(168,85,247,.18), 0 0 28px 12px rgba(236,72,153,.15)}
+  }
+  .neon-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:800;box-shadow:0 0 20px rgba(236,72,153,.35)}
+  .neon-btn:hover{filter:brightness(1.06);box-shadow:0 0 26px rgba(236,72,153,.5)}
+  .btn.outline{background:#141420;border:1px solid rgba(255,255,255,.18);color:#fff}
+
+  /* Роутинг */
+  section.page{display:none;padding:56px 0}
+  section.page.active{display:block}
+
+  /* Мобильные правки */
+  @media(max-width:720px){
+    h1{font-size:38px}
+    h2{font-size:28px}
+    .hero-inner{gap:22px;padding:36px 0}
+    .nav a{margin-left:12px}
+    .trust{grid-template-columns:1fr 1fr}
+    .field input{padding:14px 12px}
+    .choices{gap:8px}
+    .choice label{padding:10px 12px}
+    .btn, .neon-btn{width:100%}
+    .row{grid-template-columns:1fr !important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="#/">
+      <div class="logo">🛡️</div>
+      <div class="display" style="font-size:20px;letter-spacing:.8px">LUMA VPN</div>
+    </a>
+    <nav>
+      <a class="link" href="#/why">Почему мы ✨</a>
+      <a class="link" href="#/pricing">Тарифы 💳</a>
+      <a class="link" href="#/reviews">Отзывы 💬</a>
+      <a class="link" href="#/howto">Как начать 🚀</a>
+      <a class="btn primary" href="#/download">Скачать ⬇️</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="home" class="page active hero">
+  <div class="planet">
+    <svg viewBox="0 0 900 500" width="100%" height="100%">
+      <defs>
+        <radialGradient id="g1" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#a78bfa" stop-opacity=".35"/><stop offset="100%" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="line" x1="0" x2="1">
+          <stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#60a5fa"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="450" cy="250" rx="420" ry="200" fill="url(#g1)"/>
+      <path d="M360 260 C480 140, 780 140, 900 260" stroke="url(#line)" stroke-width="10" fill="none" opacity=".85"/>
+      <circle cx="420" cy="270" r="22" fill="#10b981" opacity=".9"/>
+      <circle cx="870" cy="250" r="26" fill="#22d3ee" opacity=".9"/>
+    </svg>
+  </div>
+  <div class="container hero-inner">
+    <div>
+      <span class="pill">🕹️ ГЕЙМЕРСКИЙ VPN • 🎁 Бесплатно 1 год</span>
+      <h1 class="display">LUMA VPN — для геймеров и работы онлайн</h1>
+      <p class="muted">Оптимизированные игровые маршруты, защита уровня банка и сервера по всему миру. С первого кода подписка на любой тариф — бесплатно.</p>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn" href="#/download">Скачать</a>
+        <a class="btn primary" href="#/pricing">Выбрать тариф</a>
+      </div>
+      <div class="muted" style="margin-top:10px;font-size:14px">AES-256 🔒 • Низкий пинг ⚡ • 80+ стран 🌍</div>
+      <div class="trust" style="margin-top:16px">
+        <div class="tb"><span class="dot"></span><span>No-Logs политика</span></div>
+        <div class="tb"><span class="dot"></span><span>Шифрование AES‑256</span></div>
+        <div class="tb"><span class="dot"></span><span>24/7 поддержка</span></div>
+        <div class="tb"><span class="dot"></span><span>GDPR‑friendly</span></div>
+      </div>
+    </div>
+    <div style="position:relative;height:380px">
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:340px;background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.2);border-radius:28px;padding:12px;box-shadow:0 24px 64px rgba(0,0,0,.55)">
+        <div style="border-radius:18px;background:linear-gradient(180deg,rgba(16,185,129,.5),rgba(14,165,233,.45));padding:14px;color:#fff">
+          <div style="font-size:13px">Protected • NetShield</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr);text-align:center;font-size:12px">
+            <div><div style="font-weight:900;font-size:22px">21</div>Ads</div>
+            <div><div style="font-weight:900;font-size:22px">14</div>Trackers</div>
+            <div><div style="font-weight:900;font-size:22px">1.5MB</div>Saved</div>
+          </div>
+          <div style="margin-top:12px;background:rgba(0,0,0,.45);padding:10px;border-radius:12px;font-size:13px">Australia • via Switzerland</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПОЧЕМУ -->
+<section id="why" class="page">
+  <div class="container">
+    <h2 class="display">Почему LUMA VPN ✨</h2>
+    <div class="cards">
+      <div class="card"><strong>Скорость без ограничений ⚡</strong><p class="muted">Игровые узлы с низким пингом и маршрутизация к серверам популярных игр (Valorant, CS2, Dota 2).</p></div>
+      <div class="card"><strong>Защита уровня банка 🔒</strong><p class="muted">AES-256, Perfect Forward Secrecy, No-Logs, защита от утечек DNS/IPv6, Kill-Switch.</p></div>
+      <div class="card"><strong>Сервера по всему миру 🌍</strong><p class="muted">80+ стран — стримьте и работайте без гео-блоков. Автовыбор лучшего узла.</p></div>
+    </div>
+    <div class="card black" style="margin-top:16px">
+      <div>Мы не собираем и не продаём ваши данные. Для активации нужен только Telegram username. Первая подписка — 1 код бесплатно на ЛЮБОЙ тариф.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ТАРИФЫ -->
+<section id="pricing" class="page">
+  <div class="container">
+    <h2 class="display">Тарифы 💳</h2>
+    <p class="muted">Все планы включают приложения для всех платформ и поддержку 24/7. Первая подписка — 1 код бесплатно на любой тариф.</p>
+    <div class="cards" id="priceCards"></div>
+  </div>
+</section>
+
+<!-- ОТЗЫВЫ -->
+<section id="reviews" class="page">
+  <div class="container">
+    <h2 class="display">Отзывы 💬</h2>
+    <div class="cards" id="reviewsList"></div>
+    <div class="card black" style="margin-top:16px"><span>97% пользователей остаются с нами после первого бесплатного года — потому что это действительно работает.</span></div>
+  </div>
+</section>
+
+<!-- КАК НАЧАТЬ -->
+<section id="howto" class="page">
+  <div class="container">
+    <h2 class="display">Как начать 🚀</h2>
+    <ol class="howto">
+      <li>1️⃣ Заполните анкету: укажите Telegram и выберите тариф.</li>
+      <li>2️⃣ Получите купон (например, VPN3452) — он генерируется автоматически.</li>
+      <li>3️⃣ Нажмите «Перейти к боту» и отправьте купон в @vpnluma_bot — получите инструкцию.</li>
+      <li>4️⃣ Скачайте приложение под вашу платформу.</li>
+      <li>5️⃣ Выберите ближайший сервер — минимальный пинг и максимум скорости.</li>
+      <li>6️⃣ В любой момент можно сменить тариф или продлить. Первая подписка — 1 год бесплатно.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- СКАЧАТЬ -->
+<section id="download" class="page">
+  <div class="container">
+    <h2 class="display">Скачать ⬇️</h2>
+    <p class="muted">Укажите Telegram и тариф. После отправки сгенерируем личный купон и подарим 1 год бесплатного сервиса.</p>
+    <form id="dlForm" class="form-grid">
+      <div>
+        <label class="muted" for="tg">Telegram username</label>
+        <div class="field">
+          <span>👤 @</span>
+          <input id="tg" type="text" inputmode="text" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="username">
+        </div>
+      </div>
+      <div>
+        <label class="muted">Тариф</label>
+        <div class="choices" id="planChoices">
+          <div class="choice">
+            <input type="radio" name="plan" id="pl-basic" value="basic">
+            <label for="pl-basic">🟣 Обычный</label>
+          </div>
+          <div class="choice">
+            <input type="radio" name="plan" id="pl-premium" value="premium" checked>
+            <label for="pl-premium">💎 Премиум</label>
+          </div>
+          <div class="choice">
+            <input type="radio" name="plan" id="pl-business" value="business">
+            <label for="pl-business">🏢 Бизнес</label>
+          </div>
+        </div>
+      </div>
+      <div style="grid-column:1/-1">
+        <button class="btn select-plan primary" type="submit">Зарегистрироваться и получить купон 🎟️</button>
+      </div>
+    </form>
+    <div class="xs">Нажимая кнопку, вы соглашаетесь с Политикой конфиденциальности и условиями использования. Мы не храним журналы трафика (No-Logs).</div>
+  </div>
+</section>
+
+<footer>
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px"><div class="logo">🛡️</div><strong class="display">LUMA VPN</strong></div>
+    <div class="muted">© <span id="year"></span> LUMA VPN. Все права защищены.</div>
+  </div>
+</footer>
+
+<!-- МОДАЛКА -->
+<div id="modal" class="modal" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="display" style="letter-spacing:.5px">Заявка отправлена! ✅</div>
+      <button class="btn outline" onclick="closeModal()">✖</button>
+    </div>
+    <div class="coupon-wrap">
+      <div>Ваш персональный код:</div>
+      <div id="coupon" class="coupon">VPN0000</div>
+      <div style="font-size:13px;color:#d1d5db;margin-top:6px;text-align:center">Отправьте код в Telegram-бот @vpnluma_bot и получите инструкцию.</div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <a id="botLink" class="neon-btn" target="_blank" rel="noreferrer">Перейти к боту 🤖</a>
+      <button class="btn outline" onclick="copyCoupon()">Скопировать код</button>
+    </div>
+    <div class="xs" style="color:#9aa0b4;margin-top:10px">Код одноразовый и действует 30 минут. Если окно закрыто — отправьте форму снова.</div>
+  </div>
+</div>
+
+<script>
+  // --- простой роутер ---
+  const pages = ["home","why","pricing","reviews","howto","download"];
+  function showPage(){
+    const hash = (location.hash || "#/").replace("#","");
+    const path = hash.startsWith("/") ? hash.slice(1) : hash;
+    pages.forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.classList.toggle("active", path==="" && id==="home" || path===id);
+    });
+    if(path==="pricing") renderPlans();
+    if(path==="reviews") renderReviews();
+  }
+  window.addEventListener("hashchange", showPage);
+  window.addEventListener("load", showPage);
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // --- тарифы ---
+  const PLANS = [
+    {id:"basic", name:"Обычный", price:"0 ₽", badge:"🎁 1 год бесплатно", feats:["Безлимитный трафик","Скорость до 100 Мбит/с","5 стран / 10 серверов","1 устройство","Шифрование AES-256"]},
+    {id:"premium", name:"Премиум", price:"399 ₽/мес", badge:"🔥 Хит", feats:["Максимальная скорость","35 стран / 120 серверов","До 5 устройств","Блокировка рекламы","Поддержка 24/7 в Telegram"]},
+    {id:"business", name:"Бизнес", price:"1190 ₽/мес", badge:"🏢 Командам", feats:["Выделенные IP","80+ стран / 400+ серверов","SLA 99.9%","SSO/SCIM и аудит","Приоритетная поддержка 24/7"]},
+  ];
+  function renderPlans(){
+    const root = document.getElementById("priceCards");
+    if(!root || root.dataset.rendered) return;
+    root.dataset.rendered = "1";
+    root.innerHTML = PLANS.map(p=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="display" style="font-size:22px">${p.name} 🎮</div>
+          <span class="pill" style="border-radius:999px">${p.badge}</span>
+        </div>
+        <div class="muted" style="margin-top:6px">Первая подписка — 1 код бесплатно</div>
+        <div class="price display">${p.price}</div>
+        <ul class="clean">${p.feats.map(f=>`<li>✔ ${f}</li>`).join("")}</ul>
+        <button class="btn select-plan" onclick="selectPlan('${p.id}')">Выбрать и скачать ⚡</button>
+      </div>`).join("");
+  }
+  function selectPlan(id){
+    location.hash = "#/download";
+    const radio = document.querySelector(`input[name='plan'][value='${id}']`);
+    if(radio) radio.checked = true;
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // --- отзывы ---
+  const REVIEWS = [
+    ["Егор, стример","Пинг стабильно низкий, стримы без дропов. Бесплатный год — космос!"],
+    ["Марина, маркетолог","Кабинеты и аналитика без блокировок. Саппорт — молния."],
+    ["Алексей, геймер","Valorant и Apex без лагов. Один аккаунт — все устройства."],
+    ["Кирилл, киберспорт","Европейские узлы дают лучший маршрут для праков."],
+    ["Ника, проджект","Поставила за минуту, работает стабильно даже в роуминге."],
+    ["Платон, разработчик","WireGuard + мультиплатформа — идеально для удалёнки."],
+    ["Денис, SMM","Из любой страны захожу в рекламные кабинеты без блокировок — топ."],
+    ["Оля, студент","YouTube и Netflix без ограничений, удобно на телефоне и ноуте."],
+    ["Тимур, фрилансер","С выделенным IP банки перестали ругаться — удобно для работы."],
+  ];
+  function renderReviews(){
+    const root = document.getElementById("reviewsList");
+    if(!root || root.dataset.rendered) return;
+    root.dataset.rendered = "1";
+    root.innerHTML = REVIEWS.map(([name,text])=>`
+      <div class="card">
+        <div style="color:#fde047;font-size:18px">★★★★★</div>
+        <p>“${text}”</p>
+        <div class="muted">${name}</div>
+      </div>`).join("");
+  }
+
+  // --- форма «Скачать» ---
+  const form = document.getElementById("dlForm");
+  const bot = "vpnluma_bot";
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const user = (document.getElementById("tg").value || "").trim().replace(/^@+/,"");
+    if(!user){ alert("Укажите Telegram username"); return; }
+    const plan = (document.querySelector("input[name='plan']:checked")||{}).value || "premium";
+    const coupon = "VPN" + Math.floor(1000 + Math.random()*9000);
+    // показать модалку (НЕ перекидывать сразу)
+    document.getElementById("coupon").textContent = coupon;
+    const link = `https://t.me/${bot}?start=${coupon}`;
+    document.getElementById("botLink").href = link;
+    openModal();
+
+    // отправка на ваш backend -> в бота/группу (опционально)
+    try{
+      await fetch("/api/notify", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: user, plan, coupon })
+});
+
+    }catch{}
+  });
+
+  // --- модалка / буфер ---
+  const modal = document.getElementById("modal");
+  function openModal(){ modal.classList.add("open"); }
+  function closeModal(){ modal.classList.remove("open"); }
+  window.closeModal = closeModal;
+  function copyCoupon(){
+    const code = document.getElementById("coupon").textContent;
+    navigator.clipboard.writeText(code).catch(()=>{});
+  }
+  window.copyCoupon = copyCoupon;
+</script>
+
+<!-- AUTO-GENERATED-NOTIFY-SCRIPT -->
+<script>
+(function(){
+  function escapeHtml(s){ return String(s||''); }
+
+  const form = document.querySelector('form');
+  if(!form) return;
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    // try to find username input
+    let userEl = document.getElementById('tg') || form.querySelector("input[name='username']") || form.querySelector("input[type='text']");
+    let user = userEl ? (userEl.value || '').trim().replace(/^@+/,'') : '';
+    if(!user){ alert('Укажите Telegram username'); if(userEl) userEl.focus(); return; }
+
+    // plan selection: radio with name 'plan' or select
+    let plan = (form.querySelector("input[name='plan']:checked") || {}).value
+             || (form.querySelector("select[name='plan']")||{}).value
+             || 'default';
+
+    // coupon generation
+    const coupon = 'VPN' + Math.floor(1000 + Math.random()*9000);
+
+    // If modal elements exist, fill them
+    const couponEl = document.getElementById('coupon');
+    const botLinkEl = document.getElementById('botLink');
+
+    if(couponEl) couponEl.textContent = coupon;
+    if(botLinkEl){
+      const bot = window.bot || botLinkEl.getAttribute('data-bot') || (botLinkEl.href.split('t.me/').pop() || 'your_bot');
+      botLinkEl.href = 'https://t.me/' + bot + '?start=' + coupon;
+    }
+
+    // open modal if there's a function openModal or element with id 'modal'
+    if(typeof openModal === 'function'){ try { openModal(); } catch(e){} }
+    else {
+      const modal = document.getElementById('modal');
+      if(modal) modal.style.display = 'block';
+    }
+
+    // send to backend
+    try{
+      const resp = await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, plan: plan, coupon: coupon })
+      });
+      if(!resp.ok){
+        console.error('Server response not ok', resp.status, await resp.text());
+        alert('Не удалось отправить заявку на сервер. Попробуйте ещё раз.');
+        return;
+      }
+      // optional success feedback
+      console.log('Заявка отправлена');
+    }catch(err){
+      console.error(err);
+      alert('Ошибка сети при отправке. Попробуйте ещё раз.');
+    }
+  }, { once: false });
+})();
+</script>
+<!-- /AUTO-GENERATED-NOTIFY-SCRIPT -->
+
+</body>
+</html>
