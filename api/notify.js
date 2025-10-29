@@ -1,78 +1,49 @@
-// api/notify.js
-// Node 18+ (Vercel) — используем глобальный fetch, без node-fetch.
-
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') {
-      res.status(405).json({ error: 'Method not allowed' });
-      return;
+      return res.status(405).json({ ok: false, error: 'Method not allowed' });
     }
-
     if (!BOT_TOKEN || !CHAT_ID) {
-      res.status(500).json({ error: 'Telegram env vars not configured' });
-      return;
+      return res.status(500).json({ ok: false, error: 'Telegram env vars not configured' });
     }
 
-    // Парсим тело
     let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch { body = {}; }
-    }
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
     body = body || {};
 
     const username = (body.username || '').toString().replace(/[^0-9A-Za-z_]/g,'').trim();
     const plan = (body.plan || '').toString();
     const coupon = (body.coupon || '').toString();
+    if (!username) return res.status(400).json({ ok:false, error:'username is required' });
+
+    const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || '';
     const time = new Date().toISOString();
 
-    if (!username) {
-      res.status(400).json({ error: 'username is required' });
-      return;
-    }
-
-    const ip =
-      req.headers['x-forwarded-for'] ||
-      req.headers['x-real-ip'] ||
-      req.socket?.remoteAddress ||
-      '';
-
-    const escapeMd = (s='') => s.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
-
     const text =
-`📥 *Новая заявка на скачивание*
-*Telegram:* @${escapeMd(username)}
-*Тариф:* ${escapeMd(plan)}
-*Купон:* \`${escapeMd(coupon)}\`
-*IP:* \`${escapeMd(ip)}\`
-*Дата:* ${escapeMd(time)}`;
+`Новая заявка на скачивание
+Telegram: @${username}
+Тариф: ${plan}
+Купон: ${coupon}
+IP: ${ip}
+Дата: ${time}`;
 
-    const tgUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    const payload = {
-      chat_id: CHAT_ID,
-      text,
-      parse_mode: 'MarkdownV2',
-      disable_web_page_preview: true
-    };
-
-    const r = await fetch(tgUrl, {
+    const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ chat_id: CHAT_ID, text, disable_web_page_preview: true })
     });
 
-    const tgRes = await r.json().catch(() => ({}));
-
-    if (!r.ok || tgRes.ok === false) {
-      res.status(502).json({ error: 'Failed to send message to Telegram', details: tgRes });
-      return;
+    let tg = {};
+    try { tg = await r.json(); } catch {}
+    if (!r.ok || tg.ok === false) {
+      return res.status(502).json({ ok:false, error:'Failed to send to Telegram', details: tg });
     }
-
-    res.status(200).json({ ok: true });
-  } catch (err) {
-    console.error('notify error:', err);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(200).json({ ok:true });
+  } catch (e) {
+    console.error('notify error:', e);
+    return res.status(500).json({ ok:false, error:'Server error' });
   }
 }
