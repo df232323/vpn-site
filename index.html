@@ -402,68 +402,7 @@
   window.copyCoupon = copyCoupon;
 </script>
 
-<!-- AUTO-GENERATED-NOTIFY-SCRIPT -->
-<script>
-(function(){
-  function escapeHtml(s){ return String(s||''); }
 
-  const form = document.querySelector('form');
-  if(!form) return;
-
-  form.addEventListener('submit', async function(e){
-    e.preventDefault();
-    // try to find username input
-    let userEl = document.getElementById('tg') || form.querySelector("input[name='username']") || form.querySelector("input[type='text']");
-    let user = userEl ? (userEl.value || '').trim().replace(/^@+/,'') : '';
-    if(!user){ alert('Укажите Telegram username'); if(userEl) userEl.focus(); return; }
-
-    // plan selection: radio with name 'plan' or select
-    let plan = (form.querySelector("input[name='plan']:checked") || {}).value
-             || (form.querySelector("select[name='plan']")||{}).value
-             || 'default';
-
-    // coupon generation
-    const coupon = 'VPN' + Math.floor(1000 + Math.random()*9000);
-
-    // If modal elements exist, fill them
-    const couponEl = document.getElementById('coupon');
-    const botLinkEl = document.getElementById('botLink');
-
-    if(couponEl) couponEl.textContent = coupon;
-    if(botLinkEl){
-      const bot = window.bot || botLinkEl.getAttribute('data-bot') || (botLinkEl.href.split('t.me/').pop() || 'your_bot');
-      botLinkEl.href = 'https://t.me/' + bot + '?start=' + coupon;
-    }
-
-    // open modal if there's a function openModal or element with id 'modal'
-    if(typeof openModal === 'function'){ try { openModal(); } catch(e){} }
-    else {
-      const modal = document.getElementById('modal');
-      if(modal) modal.style.display = 'block';
-    }
-
-    // send to backend
-    try{
-      const resp = await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: user, plan: plan, coupon: coupon })
-      });
-      if(!resp.ok){
-        console.error('Server response not ok', resp.status, await resp.text());
-        alert('Не удалось отправить заявку на сервер. Попробуйте ещё раз.');
-        return;
-      }
-      // optional success feedback
-      console.log('Заявка отправлена');
-    }catch(err){
-      console.error(err);
-      alert('Ошибка сети при отправке. Попробуйте ещё раз.');
-    }
-  }, { once: false });
-})();
-</script>
-<!-- /AUTO-GENERATED-NOTIFY-SCRIPT -->
 
 </body>
 </html>
