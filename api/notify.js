@@ -23,12 +23,13 @@ export default async function handler(req, res) {
     const time = new Date().toISOString();
 
     const text =
-`Новая заявка на скачивание
-Telegram: @${username}
-Тариф: ${plan}
-Купон: ${coupon}
-IP: ${ip}
-Дата: ${time}`;
+`🆕Новая заявка на скачивание
+
+🌐Telegram: @${username}
+📱Тариф: ${plan}
+🎟Купон: ${coupon}
+🔑IP: ${ip}
+🕚Дата: ${time}`;
 
     const r = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
